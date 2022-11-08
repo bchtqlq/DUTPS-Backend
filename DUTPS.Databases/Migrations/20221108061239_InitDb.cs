@@ -6,7 +6,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace DUTPS.Databases.Migrations
 {
-    public partial class InitDatabase : Migration
+    public partial class InitDb : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -34,8 +34,8 @@ namespace DUTPS.Databases.Migrations
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     username = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false, comment: "username of user (sv id)"),
                     email = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false, comment: "email"),
-                    password_hash = table.Column<byte>(type: "smallint", nullable: false, comment: "password hash"),
-                    password_salt = table.Column<byte>(type: "smallint", nullable: false, comment: "password salt"),
+                    password_hash = table.Column<byte[]>(type: "bytea", nullable: true, comment: "password hash"),
+                    password_salt = table.Column<byte[]>(type: "bytea", nullable: true, comment: "password salt"),
                     status = table.Column<int>(type: "integer", nullable: false, comment: "status of account of user"),
                     created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, comment: "the time that the record was inserted"),
                     updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true, comment: "record's last update time"),
