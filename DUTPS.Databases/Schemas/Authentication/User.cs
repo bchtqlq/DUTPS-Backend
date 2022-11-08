@@ -10,7 +10,7 @@ namespace DUTPS.Databases.Schemas.Authentication
         [Column("username")]
         [Comment("username of user (sv id)")]
         [StringLength(512)]
-        public string UserName { set; get; }
+        public string Username { set; get; }
 
         [Required]
         [Column("email")]
@@ -20,11 +20,11 @@ namespace DUTPS.Databases.Schemas.Authentication
 
         [Column("password_hash")]
         [Comment("password hash")]
-        public byte PasswordHash { set; get; }
+        public byte[] PasswordHash { set; get; }
 
         [Column("password_salt")]
         [Comment("password salt")]
-        public byte PasswordSalt { set; get; }
+        public byte[] PasswordSalt { set; get; }
 
         /// <summary>
         /// status of account of user, defined in <see cref="DUTPS.Commons.CodeMaster.AccountState"/>
@@ -32,6 +32,13 @@ namespace DUTPS.Databases.Schemas.Authentication
         [Column("status")]
         [Comment("status of account of user")]
         public int Status { set; get; }
+
+        /// <summary>
+        /// status of account of user, defined in <see cref="DUTPS.Commons.CodeMaster.Role"/>
+        /// </summary>
+        [Column("role")]
+        [Comment("role of account of user")]
+        public int Role { set; get; }
 
         /// <summary>
         /// more information of user

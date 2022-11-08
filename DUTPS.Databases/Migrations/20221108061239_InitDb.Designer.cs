@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DUTPS.Databases.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20221108041818_InitDatabase")]
-    partial class InitDatabase
+    [Migration("20221108061239_InitDb")]
+    partial class InitDb
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -57,13 +57,13 @@ namespace DUTPS.Databases.Migrations
                         .HasColumnName("email")
                         .HasComment("email");
 
-                    b.Property<byte>("PasswordHash")
-                        .HasColumnType("smallint")
+                    b.Property<byte[]>("PasswordHash")
+                        .HasColumnType("bytea")
                         .HasColumnName("password_hash")
                         .HasComment("password hash");
 
-                    b.Property<byte>("PasswordSalt")
-                        .HasColumnType("smallint")
+                    b.Property<byte[]>("PasswordSalt")
+                        .HasColumnType("bytea")
                         .HasColumnName("password_salt")
                         .HasComment("password salt");
 
@@ -77,7 +77,7 @@ namespace DUTPS.Databases.Migrations
                         .HasColumnName("updated_at")
                         .HasComment("record's last update time");
 
-                    b.Property<string>("UserName")
+                    b.Property<string>("Username")
                         .IsRequired()
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)")
