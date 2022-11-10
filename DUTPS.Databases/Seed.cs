@@ -5,11 +5,23 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using DUTPS.Databases.Schemas.Authentication;
+using DUTPS.Databases.Schemas.General;
 
 namespace DUTPS.Databases
 {
-    public class Seed
+    public static class Seed
     {
+        public static void SeedFaculties(DataContext context)
+        {
+            if (context.Faculties.Any()) return;
+
+            var facultyData = System.IO.File.ReadAllText("../DUTPS.Databases/SeedFiles/FacultySeedData.json");
+            var faculties = JsonSerializer.Deserialize<List<Faculty>>(facultyData);
+            if (faculties == null) return;
+
+            context.AddRange(faculties);
+            context.SaveChanges();
+        }
         public static void SeedUsers(DataContext context)
         {
             if (context.Users.Any()) return;

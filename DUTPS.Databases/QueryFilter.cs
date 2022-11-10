@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUTPS.Databases
 {
-    public class QueryFilter
+    public static class QueryFilter
     {
         public static ModelBuilder HasQueryFilter(ModelBuilder modelBuilder)
         {

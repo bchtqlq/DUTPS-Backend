@@ -72,7 +72,7 @@ namespace DUTPS.Databases
             return base.SaveChanges();
         }
 
-        public async Task RollbackAsync(IDbContextTransaction transaction)
+        public static async Task RollbackAsync(IDbContextTransaction transaction)
         {
             if (transaction != null)
             {
@@ -80,7 +80,7 @@ namespace DUTPS.Databases
             }
         }
 
-        public void Rollback(IDbContextTransaction transaction)
+        public static void Rollback(IDbContextTransaction transaction)
         {
             if (transaction != null)
             {
@@ -97,51 +97,47 @@ namespace DUTPS.Databases
                 DateTime now = DateTime.SpecifyKind(DateTime.Now, DateTimeKind.Utc);
                 foreach (var entry in ChangeTracker.Entries())
                 {
-                    try
+                    if (entry.Entity is Table root)
                     {
-                        if (entry.Entity is Table root)
+                        switch (entry.State)
                         {
-                            switch (entry.State)
-                            {
-                                // If it is a new insert, change the created information
-                                case EntityState.Added:
-                                    {
+                            // If it is a new insert, change the created information
+                            case EntityState.Added:
+                                {
 
-                                        root.CreatedAt = now;
-                                        root.UpdatedAt = null;
+                                    root.CreatedAt = now;
+                                    root.UpdatedAt = null;
+                                    root.DeletedAt = null;
+                                    root.DelFlag = false;
+                                    break;
+                                }
+                            // If it is a modifine, change the updated information
+                            case EntityState.Modified:
+                                {
+                                    if (root.DelFlag)
+                                    {
+                                        root.DeletedAt = now;
+                                    }
+                                    else
+                                    {
+                                        root.UpdatedAt = now;
                                         root.DeletedAt = null;
-                                        root.DelFlag = false;
-                                        break;
                                     }
-                                // If it is a modifine, change the updated information
-                                case EntityState.Modified:
+                                    break;
+                                }
+                            // If it is delete, change to soft delete
+                            case EntityState.Deleted:
+                                {
+                                    if (!root.ForceDel)
                                     {
-                                        if (root.DelFlag)
-                                        {
-                                            root.DeletedAt = now;
-                                        }
-                                        else
-                                        {
-                                            root.UpdatedAt = now;
-                                            root.DeletedAt = null;
-                                        }
-                                        break;
+                                        entry.State = EntityState.Modified;
+                                        root.DeletedAt = now;
+                                        root.DelFlag = true;
                                     }
-                                // If it is delete, change to soft delete
-                                case EntityState.Deleted:
-                                    {
-                                        if (!root.ForceDel)
-                                        {
-                                            entry.State = EntityState.Modified;
-                                            root.DeletedAt = now;
-                                            root.DelFlag = true;
-                                        }
-                                        break;
-                                    }
-                            }
+                                    break;
+                                }
                         }
                     }
-                    catch { }
                 }
             }
         }

@@ -13,14 +13,12 @@ namespace DUTPS.API.Services
     public class TokenService : ITokenService
     {
         private readonly IConfiguration _configuration;
-        private readonly DataContext _context;
 
         public TokenService(
-            IConfiguration configuration, 
-            DataContext context)
+            IConfiguration configuration
+            )
         {
             _configuration = configuration;
-            _context = context;
         }
 
         public string CreateToken(string username)
