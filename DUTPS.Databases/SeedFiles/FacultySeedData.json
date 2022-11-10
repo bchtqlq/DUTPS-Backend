@@ -1,0 +1,30 @@
+[
+    {
+      "Id": "CNTT",
+      "Name": "Khoa công nghệ thông tin"
+    },
+    {
+      "Id": "TDH",
+      "Name": "Khoa tự động hoá"
+    },
+    {
+      "Id": "CNSH",
+      "Name": "Khoa công nghệ sinh học"
+    },
+    {
+      "Id": "PFIEV",
+      "Name": "Khoa công nghệ tiên tiến"
+    },
+    {
+      "Id": "CK",
+      "Name": "Khoa cơ khí"
+    },
+    {
+      "Id": "KTXD",
+      "Name": "Khoa kinh tế xây dựng"
+    },
+    {
+      "Id": "KD",
+      "Name": "Khoa điện"
+    }
+]

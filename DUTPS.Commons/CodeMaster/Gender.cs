@@ -23,7 +23,7 @@
         /// <summary>
         /// 1 : Male
         /// </summary>
-        public static class MALE
+        public static class Male
         {
             public static readonly int CODE = 1;
             public static readonly string NAME = "Male";
@@ -32,7 +32,7 @@
         /// <summary>
         /// 2 : Female
         /// </summary>
-        public static class FEMALE
+        public static class Female
         {
             public static readonly int CODE = 2;
             public static readonly string NAME = "Female";
@@ -41,7 +41,7 @@
         /// <summary>
         /// 3 : Secret
         /// </summary>
-        public static class SECRET
+        public static class Secret
         {
             public static readonly int CODE = 3;
             public static readonly string NAME = "Secret";

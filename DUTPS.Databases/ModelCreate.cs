@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DUTPS.Databases
 {
-    public class ModelCreate
+    public static class ModelCreate
     {
         public static ModelBuilder OnModelCreating(ModelBuilder modelBuilder)
         {

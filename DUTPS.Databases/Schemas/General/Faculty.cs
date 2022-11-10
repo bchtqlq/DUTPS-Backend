@@ -13,7 +13,7 @@ namespace DUTPS.Databases.Schemas.General
             Users = new HashSet<UserInfo>();
         }
         [Key]
-        [StringLength(3)]
+        [StringLength(10)]
         [Column("id")]
         [Comment("Id of faculty")]
         public string Id { get; set; }

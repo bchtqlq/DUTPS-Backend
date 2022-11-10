@@ -19,7 +19,7 @@
         /// <summary>
         /// 10 : Account is using
         /// </summary>
-        public static class NORMAL
+        public static class Normal
         {
             public static readonly int CODE = 10;
             public static readonly string NAME = "Using";
@@ -28,7 +28,7 @@
         /// <summary>
         /// 20 : Account is locking<br/>
         /// </summary>
-        public static class LOCK
+        public static class Lock
         {
             public static readonly int CODE = 20;
             public static readonly string NAME = "Locking";

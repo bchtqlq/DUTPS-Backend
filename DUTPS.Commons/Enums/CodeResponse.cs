@@ -1,6 +1,6 @@
 ﻿namespace DUTPS.Commons.Enums
 {
-    public class CodeResponse
+    public static class CodeResponse
     {
         public readonly static int OK = 200;
         public readonly static int SERVER_ERROR = 500;

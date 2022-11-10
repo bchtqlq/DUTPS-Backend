@@ -14,7 +14,6 @@ namespace DUTPS.Databases.Schemas.Authentication
         [Comment("primary key to identity the user")]
         public long UserId { set; get; }
 
-        [Required]
         [StringLength(50)]
         [Column("name")]
         [Comment("name of user")]
@@ -40,12 +39,6 @@ namespace DUTPS.Databases.Schemas.Authentication
         [Column("class")]
         [Comment("class name of user")]
         public string Class { get; set; }
-
-        [Required]
-        [StringLength(50)]
-        [Column("qrcode")]
-        [Comment("Link to QR Code Of User")]
-        public string QRCode { get; set; }
 
         [StringLength(3)]
         [Column("faculty_id")]
