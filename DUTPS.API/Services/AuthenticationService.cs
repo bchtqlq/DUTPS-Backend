@@ -16,25 +16,24 @@ namespace DUTPS.API.Services
     {
         Task<ResponseInfo> Login(UserLoginDto userLoginDto);
         Task<ResponseInfo> Register(UserRegisterDto userRegisterDto);
-        Task<ProfileDto> GetProfile();
+        Task<ProfileDto> GetProfile(string username);
+        Task<ResponseInfo> UpdateProfile(string username, UpdateProfileDto profileDto);
     }
     public class AuthenticationService : IAuthenticationService
     {
         private readonly DataContext _context;
+        private readonly ILogger<AuthenticationService> _logger;
         private readonly ITokenService _tokenService;
 
         public AuthenticationService(
             DataContext context,
+            ILogger<AuthenticationService> logger,
             ITokenService tokenService
         )
         {
             _context = context;
+            _logger = logger;
             _tokenService = tokenService;
-        }
-
-        public Task<ProfileDto> GetProfile()
-        {
-            throw new NotImplementedException();
         }
 
         public async Task<ResponseInfo> Login(UserLoginDto userLoginDto)
@@ -139,6 +138,61 @@ namespace DUTPS.API.Services
                 responeInfo.Code = CodeResponse.OK;
                 responeInfo.Data.Add("accessToken", _tokenService.CreateToken(user.Username));
                 responeInfo.Data.Add("username", user.Username);
+                return responeInfo;
+            }
+            catch (Exception)
+            {
+                await DataContext.RollbackAsync(transaction);
+                throw;
+            }
+        }
+     
+        public async Task<ProfileDto> GetProfile(string username)
+        {
+            username = username.ToLower();
+            return await _context.Users.Select(x => new ProfileDto {
+                Username = x.Username,
+                Email = x.Email,
+                Role = x.Role,
+                Name = x.Information.Name,
+                Gender = x.Information.Gender,
+                Birthday = x.Information.Birthday,
+                PhoneNumber = x.Information.PhoneNumber,
+                Class = x.Information.Class,
+                FacultyId = x.Information.FacultyId,
+                FalcultyName = x.Information.Faculty.Name,
+            }).FirstOrDefaultAsync(x => x.Username == username);
+        }
+
+        public async Task<ResponseInfo> UpdateProfile(string username, UpdateProfileDto profileDto)
+        {
+            IDbContextTransaction transaction = null;
+            try
+            {
+                var responeInfo = new ResponseInfo();
+                username = username.ToLower();
+                var currentUser = await _context.Users.Include(x => x.Information).FirstOrDefaultAsync(x => x.Username == username);
+
+                if (currentUser == null)
+                {
+                    responeInfo.Code = CodeResponse.NOT_FOUND;
+                    responeInfo.Message = "Not found user";
+                    return responeInfo;
+                }
+
+                _logger.LogInformation("Ok");
+
+                currentUser.Information.Name = profileDto.Name;
+                currentUser.Information.Birthday = profileDto.Birthday;
+                currentUser.Information.Gender = profileDto.Gender;
+                currentUser.Information.FacultyId = profileDto.FacultyId;
+                currentUser.Information.Class = profileDto.Class;
+                currentUser.Information.PhoneNumber = profileDto.PhoneNumber;
+
+                transaction = await _context.Database.BeginTransactionAsync();
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                responeInfo.Data.Add("username", currentUser.Username);
                 return responeInfo;
             }
             catch (Exception)

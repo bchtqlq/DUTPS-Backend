@@ -12,12 +12,15 @@ namespace DUTPS.API.Dtos.Profile
         
         public DateTime? Birthday { get; set; }
         
+        [Required]
         [StringLength(20)]
         public string PhoneNumber { get; set; }
         
+        [Required]
         [StringLength(50)]
         public string Class { get; set; }
         
+        [Required]
         public string FacultyId { get; set; }        
     }
 }
