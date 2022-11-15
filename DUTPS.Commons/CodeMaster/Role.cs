@@ -43,7 +43,7 @@ namespace DUTPS.Commons.CodeMaster
         /// </summary>
         public static class Customer
         {
-            public static readonly int CODE = 20;
+            public static readonly int CODE = 30;
             public static readonly string NAME = "Customer";
         }
     }

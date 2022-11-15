@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DUTPS.Databases.Schemas.Authentication;
 using DUTPS.Databases.Schemas.General;
+using DUTPS.Databases.Schemas.Vehicals;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 
@@ -35,6 +36,16 @@ namespace DUTPS.Databases
         /// system_exception_logs<br/>Table to saves faculties of school
         /// </summary>
         public virtual DbSet<Faculty> Faculties { get; set; }
+        #endregion
+
+        #region Vehicals
+        
+        public virtual DbSet<Vehical> Vehicals { get; set; }
+
+        public virtual DbSet<CheckIn> CheckIns { get; set; }
+
+        public virtual DbSet<CheckOut> CheckOuts { get; set; }
+
         #endregion
         #endregion
 

@@ -74,6 +74,21 @@ namespace DUTPS.API.Services
             responeInfo.Code = CodeResponse.OK;
             responeInfo.Data.Add("accessToken", token);
             responeInfo.Data.Add("username", userLoginDto.Username);
+            responeInfo.Data.Add("roleId", currentUser.Role);
+            switch (currentUser.Role)
+            {
+                case 10:
+                    responeInfo.Data.Add("role", Role.Admin.NAME);
+                    break;
+                case 20:
+                    responeInfo.Data.Add("role", Role.Staff.NAME);
+                    break;
+                case 30:
+                    responeInfo.Data.Add("role", Role.Customer.NAME);
+                    break;
+                default:
+                    break;
+            }
             return responeInfo;
         }
 
