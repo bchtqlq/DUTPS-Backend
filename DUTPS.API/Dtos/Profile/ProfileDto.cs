@@ -2,6 +2,12 @@ namespace DUTPS.API.Dtos.Profile
 {
     public class ProfileDto
     {
+        public string Username { get; set; }
+        
+        public string Email { get; set; }
+        
+        public int Role { get; set; }
+
         public string Name { get; set; }
         
         public int? Gender { get; set; }

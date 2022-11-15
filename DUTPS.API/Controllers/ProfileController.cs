@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Claims;
-using DUTPS.API.Dtos.Authentication;
+using DUTPS.API.Dtos.Profile;
 using DUTPS.API.Services;
 using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
@@ -9,22 +9,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DUTPS.API.Controllers
 {
-    public class AuthController : BaseController
+    public class ProfileController : BaseController
     {
         private readonly IAuthenticationService _authenticationService;
 
-        public AuthController(IAuthenticationService authenticationService)
+        public ProfileController(IAuthenticationService authenticationService)
         {
             _authenticationService = authenticationService;
         }
-
+        
         /// <summary>
-        /// Check information of user login
-        /// <para>Created at: 2022-11-08</para>
+        /// Get profile of user
+        /// <para>Created at: 2022-11-15</para>
         /// <para>Created by: Quang TN</para>
         /// </summary>
-        /// <param name="user">Data of user from login screen</param>
-        /// <returns>Data token after login success</returns>
+        /// <returns>Data of user profile</returns>
         /// <remarks>
         /// Mean of response.Code
         /// 
@@ -69,25 +68,20 @@ namespace DUTPS.API.Controllers
         /// </response>
         /// <response code="200">Result after check data login</response>
         /// <response code="500">Have exception</response>
-        [HttpPost("Login")]
-        [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
+        [HttpGet]
+        [Authorize]
+        [ProducesResponseType(typeof(ProfileDto), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetInfo()
         {
-            ResponseInfo response = new ResponseInfo();
+            var username = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             try
             {
-                if (ModelState.IsValid)
+                ProfileDto profile = await _authenticationService.GetProfile(username);
+                if (profile == null)
                 {
-                    response = await _authenticationService.Login(userLoginDto);
+                    return NotFound();
                 }
-                else
-                {
-                    response.Code = CodeResponse.NOT_VALIDATE;
-                    response.Message = "Invalid Input";
-                }
-                if (response.Code == CodeResponse.OK) return Ok(response);
-                if (response.Code == CodeResponse.NOT_FOUND) return NotFound(response);
-                return Ok(response);
+                return Ok(profile);
             }
             catch (Exception e)
             {
@@ -96,17 +90,19 @@ namespace DUTPS.API.Controllers
         }
 
         /// <summary>
-        /// user register
-        /// <para>Created at: 2022-11-10</para>
-        /// <para>Created by: Quang TN</para>
+        /// update profile of current user
+        /// <para>Created at: 2022-11-15</para>
+        /// <para>Created by: QuyPN</para>
         /// </summary>
-        /// <param name="user">Data of user from register screen</param>
-        /// <returns>Data token after register success</returns>
+        /// <param name="user">New data profile of user</param>
+        /// <returns>Result after update</returns>
         /// <remarks>
         /// Mean of response.Code
         /// 
         ///     200 - Success
         ///     201 - Error validate input data
+        ///     202 - Have error in code
+        ///     403 - Not allow access this function
         ///     500 - Server error
         ///
         /// </remarks>
@@ -117,10 +113,7 @@ namespace DUTPS.API.Controllers
         ///         "Code": 200,
         ///         "MsgNo": "",
         ///         "ListError": null,
-        ///         "Data": {
-        ///             "Token": "Token",
-        ///             "Username": "Username",
-        ///         }
+        ///         "Data": {}
         ///     }
         ///     
         /// Validate Error
@@ -129,9 +122,21 @@ namespace DUTPS.API.Controllers
         ///         "Code": 201
         ///         "MsgNo": "",
         ///         "ListError": {
+        ///             "Username": "E001",
+        ///             "Email": "E005"
         ///         },
         ///         "Data": null
         ///     }
+        ///     
+        /// Have error in code
+        /// 
+        ///     {
+        ///         "Code": 202
+        ///         "MsgNo": "E014",
+        ///         "ListError": null,
+        ///         "Data": null
+        ///     }
+        ///     
         /// Exception
         /// 
         ///     {
@@ -144,27 +149,27 @@ namespace DUTPS.API.Controllers
         ///     }
         ///     
         /// </response>
-        /// <response code="200">Result after check data register</response>
+        /// <response code="200">Result after update</response>
+        /// <response code="401">not login yet</response>
+        /// <response code="404">Not found profile</response>
         /// <response code="500">Have exception</response>
-        [HttpPost("Register")]
+        [HttpPut]
         [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Register([FromBody] UserRegisterDto userRegisterDto)
+        public async Task<IActionResult> Update([FromBody] UpdateProfileDto profile)
         {
-            ResponseInfo response = new ResponseInfo();
             try
             {
+                ResponseInfo response = new ResponseInfo();
                 if (ModelState.IsValid)
                 {
-                    response = await _authenticationService.Register(userRegisterDto);
+                    var username = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                    response = await _authenticationService.UpdateProfile(username, profile);
                 }
                 else
                 {
                     response.Code = CodeResponse.NOT_VALIDATE;
                     response.Message = "Invalid Input";
                 }
-                if (response.Code == CodeResponse.OK) return Ok(response);
-                if (response.Code == CodeResponse.NOT_VALIDATE) return BadRequest(response);
-                if (response.Code == CodeResponse.HAVE_ERROR) return BadRequest(response);
                 return Ok(response);
             }
             catch (Exception e)

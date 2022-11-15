@@ -40,7 +40,7 @@ namespace DUTPS.Databases.Schemas.Authentication
         [Comment("class name of user")]
         public string Class { get; set; }
 
-        [StringLength(3)]
+        [StringLength(10)]
         [Column("faculty_id")]
         [Comment("Faculty Id Of User")]
         public string FacultyId { get; set;}
