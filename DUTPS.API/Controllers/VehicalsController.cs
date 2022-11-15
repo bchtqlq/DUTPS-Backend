@@ -1,6 +1,6 @@
 using System.Net;
 using System.Security.Claims;
-using DUTPS.API.Dtos.Profile;
+using DUTPS.API.Dtos.Vehicals;
 using DUTPS.API.Services;
 using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
@@ -9,21 +9,21 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DUTPS.API.Controllers
 {
-    public class ProfileController : BaseController
+    public class VehicalsController : BaseController
     {
-        private readonly IAuthenticationService _authenticationService;
+        private readonly IVehicalService _vehicalService;
 
-        public ProfileController(IAuthenticationService authenticationService)
+        public VehicalsController(IVehicalService vehicalService)
         {
-            _authenticationService = authenticationService;
+            _vehicalService = vehicalService;
         }
         
         /// <summary>
-        /// Get profile of user
+        /// Get vehicals of user
         /// <para>Created at: 2022-11-15</para>
         /// <para>Created by: Quang TN</para>
         /// </summary>
-        /// <returns>Data of user profile</returns>
+        /// <returns>Data of user vehicals</returns>
         /// <remarks>
         /// Mean of response.Code
         /// 
@@ -70,18 +70,18 @@ namespace DUTPS.API.Controllers
         /// <response code="500">Have exception</response>
         [HttpGet]
         [Authorize]
-        [ProducesResponseType(typeof(ProfileDto), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetInfo()
+        [ProducesResponseType(typeof(List<VehicalDto>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Get()
         {
             var username = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             try
             {
-                ProfileDto profile = await _authenticationService.GetProfile(username);
-                if (profile == null)
+                var vehicals = await _vehicalService.GetVehicalsByUsername(username);
+                if (vehicals == null)
                 {
                     return NotFound();
                 }
-                return Ok(profile);
+                return Ok(vehicals);
             }
             catch (Exception e)
             {
@@ -90,12 +90,82 @@ namespace DUTPS.API.Controllers
         }
 
         /// <summary>
-        /// update profile of current user
+        /// Get vehical of user by id
         /// <para>Created at: 2022-11-15</para>
+        /// <para>Created by: Quang TN</para>
+        /// </summary>
+        /// <returns>Data of user vehicals</returns>
+        /// <remarks>
+        /// Mean of response.Code
+        /// 
+        ///     200 - Success
+        ///     201 - Error validate input data
+        ///     500 - Server error
+        ///
+        /// </remarks>
+        /// <response code="200">
+        /// Success
+        /// 
+        ///     {
+        ///         "Code": 200,
+        ///         "MsgNo": "",
+        ///         "ListError": null,
+        ///         "Data": {
+        ///             "Token": "Token",
+        ///             "Username": "Username",
+        ///         }
+        ///     }
+        ///     
+        /// Validate Error
+        /// 
+        ///     {
+        ///         "Code": 201
+        ///         "MsgNo": "",
+        ///         "ListError": {
+        ///         },
+        ///         "Data": null
+        ///     }
+        /// Exception
+        /// 
+        ///     {
+        ///         "Code": 500,
+        ///         "MsgNo": "E500",
+        ///         "ListError": null,
+        ///         "Data": {
+        ///             "Error": "Message"
+        ///         }
+        ///     }
+        ///     
+        /// </response>
+        /// <response code="200">Result after check data login</response>
+        /// <response code="500">Have exception</response>
+        [HttpGet("{id}")]
+        [Authorize]
+        [ProducesResponseType(typeof(List<VehicalDto>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetById([FromRoute] long id)
+        {
+            try
+            {
+                var vehical = await _vehicalService.GetVehicalByVehicalId(id);
+                if (vehical == null)
+                {
+                    return NotFound();
+                }
+                return Ok(vehical);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// create a vehical
+        /// <para>Created at: 2022-15-11</para>
         /// <para>Created by: QuangTN</para>
         /// </summary>
-        /// <param name="user">New data profile of user</param>
-        /// <returns>Result after update</returns>
+        /// <param name="vehical">data of vehical</param>
+        /// <returns>result after create</returns>
         /// <remarks>
         /// Mean of response.Code
         /// 
@@ -149,13 +219,13 @@ namespace DUTPS.API.Controllers
         ///     }
         ///     
         /// </response>
-        /// <response code="200">Result after update</response>
+        /// <response code="200">result after create</response>
         /// <response code="401">not login yet</response>
-        /// <response code="404">Not found profile</response>
-        /// <response code="500">Have exception</response>
-        [HttpPut]
+        /// <response code="500">have exception</response>
+        [HttpPost]
+        [Authorize]
         [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> Update([FromBody] UpdateProfileDto profile)
+        public async Task<IActionResult> Create([FromBody] VehicalCreateUpdateDto vehical)
         {
             try
             {
@@ -163,7 +233,7 @@ namespace DUTPS.API.Controllers
                 if (ModelState.IsValid)
                 {
                     var username = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                    response = await _authenticationService.UpdateProfile(username, profile);
+                    response = await _vehicalService.AddVehical(username, vehical);
                 }
                 else
                 {
@@ -179,12 +249,12 @@ namespace DUTPS.API.Controllers
         }
 
         /// <summary>
-        /// change password of current user
-        /// <para>Created at: 2022-11-15</para>
-        /// <para>Created by: QuangTN</para>
+        /// update detail of a vehical
+        /// <para>Created at: 2022-15-11</para>
+        /// <para>Created by: QuyPN</para>
         /// </summary>
-        /// <param name="changePassword">New password of user</param>
-        /// <returns>Result after update</returns>
+        /// <param name="vehical">new data of vehical</param>
+        /// <returns>result after update</returns>
         /// <remarks>
         /// Mean of response.Code
         /// 
@@ -238,28 +308,90 @@ namespace DUTPS.API.Controllers
         ///     }
         ///     
         /// </response>
-        /// <response code="200">Result after update</response>
+        /// <response code="200">result after update</response>
         /// <response code="401">not login yet</response>
-        /// <response code="404">Not found profile</response>
-        /// <response code="500">Have exception</response>
-        [HttpPut("ChangePassword")]
+        /// <response code="500">have exception</response>
+        [HttpPut("{id}")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
+        public async Task<IActionResult> Update([FromRoute] long id, [FromBody] VehicalCreateUpdateDto vehical)
         {
             try
             {
                 ResponseInfo response = new ResponseInfo();
                 if (ModelState.IsValid)
                 {
-                    var username = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                    response = await _authenticationService.ChangePassword(username, changePasswordDto);
+                    response = await _vehicalService.UpdateVehical(id, vehical);
                 }
                 else
                 {
                     response.Code = CodeResponse.NOT_VALIDATE;
-                    response.Message = "Invalid Input";
                 }
                 return Ok(response);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = e.Message });
+            }
+        }
+
+        /// <summary>
+        /// Delete a vehical
+        /// <para>Created at: 2022-11-15</para>
+        /// <para>Created by: QuangTN</para>
+        /// </summary>
+        /// <param name="id">id of vehical need delete</param>
+        /// <returns>data after delete vehical</returns>
+        /// <remarks>
+        /// Mean of response.Code
+        /// 
+        ///     200 - Success
+        ///     403 - Not allow access this function
+        ///     500 - Server error
+        ///
+        /// </remarks>
+        /// <response code="200">
+        /// Success
+        /// 
+        ///     {
+        ///         "Code": 200,
+        ///         "MsgNo": "",
+        ///         "ListError": null,
+        ///         "Data": {}
+        ///     }
+        ///     
+        /// Not have permission
+        /// 
+        ///     {
+        ///         "Code": 403
+        ///         "MsgNo": "E403",
+        ///         "ListError": null,
+        ///         "Data": null
+        ///     }
+        ///     
+        /// Exception
+        /// 
+        ///     {
+        ///         "Code": 500,
+        ///         "MsgNo": "E500",
+        ///         "ListError": null,
+        ///         "Data": {
+        ///             "Error": "Message"
+        ///         }
+        ///     }
+        ///     
+        /// </response>
+        /// <response code="401">Not login yet</response>
+        /// <response code="403">Not have permission</response>
+        /// <response code="500">Have exception</response>
+        [HttpDelete("{id}")]
+        [Authorize]
+        [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Delete([FromRoute] long id)
+        {
+            try
+            {
+                return Ok(await _vehicalService.DeleteVehical(id));
             }
             catch (Exception e)
             {

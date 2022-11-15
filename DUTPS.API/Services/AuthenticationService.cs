@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using DUTPS.API.Dtos.Authentication;
 using DUTPS.API.Dtos.Profile;
+using DUTPS.API.Dtos.Vehicals;
 using DUTPS.Commons.CodeMaster;
 using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
@@ -18,6 +19,7 @@ namespace DUTPS.API.Services
         Task<ResponseInfo> Register(UserRegisterDto userRegisterDto);
         Task<ProfileDto> GetProfile(string username);
         Task<ResponseInfo> UpdateProfile(string username, UpdateProfileDto profileDto);
+        Task<ResponseInfo> ChangePassword(string username, ChangePasswordDto changePasswordDto);
     }
     public class AuthenticationService : IAuthenticationService
     {
@@ -161,6 +163,10 @@ namespace DUTPS.API.Services
                 Class = x.Information.Class,
                 FacultyId = x.Information.FacultyId,
                 FalcultyName = x.Information.Faculty.Name,
+                Vehicals = x.Vehicals.Select(y => new VehicalDto {
+                    Id = y.Id,
+                    LicensePlate = y.LicensePlate,
+                    Description = y.Description}).ToList()
             }).FirstOrDefaultAsync(x => x.Username == username);
         }
 
@@ -198,6 +204,72 @@ namespace DUTPS.API.Services
             catch (Exception)
             {
                 await DataContext.RollbackAsync(transaction);
+                throw;
+            }
+        }
+
+        public async Task<ResponseInfo> ChangePassword(string username, ChangePasswordDto changePasswordDto)
+        {
+            IDbContextTransaction transaction = null;
+            try
+            {
+                _logger.LogInformation("Begin Change Password");
+                var responeInfo = new ResponseInfo();
+
+                username = username.ToLower();
+
+                var currentUser = await _context.Users
+                    .FirstOrDefaultAsync(u => u.Username == username);
+
+                if (currentUser == null)
+                {
+                    responeInfo.Code = CodeResponse.NOT_FOUND;
+                    responeInfo.Message = "Invalid username";
+                    _logger.LogError("Invalid username");
+                    return responeInfo;
+                }
+                
+                using var hmac = new HMACSHA512(currentUser.PasswordSalt);
+
+                var passwordBytes = hmac.ComputeHash(
+                    Encoding.UTF8.GetBytes(changePasswordDto.OldPassword)
+                );
+
+                for (int i = 0; i < currentUser.PasswordHash.Length; ++i)
+                {
+                    if (currentUser.PasswordHash[i] != passwordBytes[i])
+                    {
+                        responeInfo.Code = CodeResponse.NOT_FOUND;
+                        responeInfo.Message = "Invalid password";
+                        _logger.LogError("Invalid password");
+                        return responeInfo;
+                    }
+                }
+
+                if (changePasswordDto.NewPassword != changePasswordDto.ConfirmPassword)
+                {
+                    responeInfo.Code = CodeResponse.NOT_VALIDATE;
+                    responeInfo.Message = "Password does not match";
+                    _logger.LogError("Password does not match");
+                    return responeInfo;
+                }
+
+                using var newHmac = new HMACSHA512();
+
+                currentUser.PasswordHash = newHmac.ComputeHash(Encoding.UTF8.GetBytes(changePasswordDto.NewPassword));
+                currentUser.PasswordSalt = newHmac.Key;
+
+                transaction = await _context.Database.BeginTransactionAsync();
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+                responeInfo.Data.Add("username", currentUser.Username);
+                _logger.LogInformation("Change password success");
+                return responeInfo;
+            }
+            catch (Exception e)
+            {
+                await DataContext.RollbackAsync(transaction);
+                _logger.LogError($"Has the follow erorr {e.Message}");
                 throw;
             }
         }
