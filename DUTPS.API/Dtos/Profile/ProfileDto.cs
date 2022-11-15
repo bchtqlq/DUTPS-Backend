@@ -1,3 +1,5 @@
+using DUTPS.API.Dtos.Vehicals;
+
 namespace DUTPS.API.Dtos.Profile
 {
     public class ProfileDto
@@ -21,5 +23,7 @@ namespace DUTPS.API.Dtos.Profile
         public string FacultyId { get; set; }
         
         public string FalcultyName { get; set; }
+
+        public List<VehicalDto> Vehicals { get; set; }
     }
 }
