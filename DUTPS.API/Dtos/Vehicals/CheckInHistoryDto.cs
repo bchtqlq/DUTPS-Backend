@@ -10,7 +10,7 @@ namespace DUTPS.API.Dtos.Vehicals
         
         public string VehicalLicensePlate { get; set; }
         
-        public string VehicalDesciption { get; set; }
+        public string VehicalDescription { get; set; }
         
         public long CustomerId { get; set; }
         
@@ -19,7 +19,5 @@ namespace DUTPS.API.Dtos.Vehicals
         public string StaffCheckInName { get; set; }
         
         public string StaffCheckOutName { get; set; }
-        
-        
     }
 }

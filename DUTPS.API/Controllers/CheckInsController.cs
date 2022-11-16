@@ -2,6 +2,7 @@ using System.Net;
 using System.Security.Claims;
 using DUTPS.API.Dtos.Vehicals;
 using DUTPS.API.Services;
+using DUTPS.Commons;
 using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
 using Microsoft.AspNetCore.Authorization;
@@ -104,6 +105,46 @@ namespace DUTPS.API.Controllers
                     response.Message = "Invalid Input";
                 }
                 return Ok(response);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = e.Message });
+            }
+        }
+
+        [HttpGet("History")]
+        [Authorize]
+        [ProducesResponseType(typeof(PaginatedList<CheckInHistoryDto>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> Get([FromQuery] CheckInHistorySearchCondition condition)
+        {
+            try
+            {
+                var checkIns = await _checkInService.GetCheckInsHistory(condition);
+                if (checkIns == null)
+                {
+                    return NotFound();
+                }
+                return Ok(checkIns);
+            }
+            catch (Exception e)
+            {
+                return StatusCode(500, new { Error = e.Message });
+            }
+        }
+
+        [HttpGet("AvailableCheckIns")]
+        [Authorize]
+        [ProducesResponseType(typeof(PaginatedList<CheckInDto>), (int)HttpStatusCode.OK)]
+        public async Task<IActionResult> GetAvailableCheckIn([FromQuery] AvailableCheckInSearchCondition condition)
+        {
+            try
+            {
+                var checkIns = await _checkInService.GetAvailableCheckIn(condition);
+                if (checkIns == null)
+                {
+                    return NotFound();
+                }
+                return Ok(checkIns);
             }
             catch (Exception e)
             {

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using static DUTPS.API.Extensions.ServicesExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -46,6 +47,7 @@ services
                     Array.Empty<string>()
                 }
             });
+      options.OperationFilter<SwaggerParameterFilter>();
     });
 services.AddDbContext<DataContext>(options =>
     options.UseNpgsql
@@ -114,6 +116,7 @@ using (var scope = app.Services.CreateScope())
     Seed.SeedUsers(context);
     Seed.SeedFaculties(context);
 }
+AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
 app.UseSwagger();
 app.UseSwaggerUI();
