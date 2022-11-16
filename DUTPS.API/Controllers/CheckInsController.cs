@@ -42,12 +42,12 @@ namespace DUTPS.API.Controllers
         [HttpGet("GetByUsername")]
         [Authorize]
         [ProducesResponseType(typeof(CheckInDto), (int)HttpStatusCode.OK)]
-        public async Task<IActionResult> GetCheckInByUserName()
+        public async Task<IActionResult> GetCheckInByUserName([FromQuery] string username)
         {
             try
             {
-                var username = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-                var checkIn = await _checkInService.GetCurrentCheckInByUsername(username);
+                var currentUsername = this.User.FindFirst(ClaimTypes.NameIdentifier).Value;
+                var checkIn = await _checkInService.GetCurrentCheckInByUsername(!string.IsNullOrEmpty(username) ? username : currentUsername);
                 if (checkIn == null)
                 {
                     return NotFound();

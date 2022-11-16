@@ -90,7 +90,9 @@ namespace DUTPS.API.Services
                 staffUsername = staffUsername.ToLower();
                 var currentUser = await _context.Users.FirstOrDefaultAsync(x => x.Username == staffUsername);
 
-                if (currentUser == null)
+                var customer = await _context.Users
+                    .FirstOrDefaultAsync(x => x.Username == checkInCreateDto.CustomerUsername);
+                if (currentUser == null || customer == null)
                 {
                     responeInfo.Code = CodeResponse.NOT_FOUND;
                     responeInfo.Message = "Not found user";
@@ -100,7 +102,7 @@ namespace DUTPS.API.Services
                 var checkIn = new CheckIn();
                  
                 checkIn.StaffId = currentUser.Id;
-                checkIn.CustomerId = checkInCreateDto.CustomerId;
+                checkIn.CustomerId = customer.Id;
                 checkIn.DateOfCheckIn = checkInCreateDto.DateOfCheckIn.AddHours(7);
                 checkIn.VehicalId = checkInCreateDto.VehicalId;
                 checkIn.IsCheckOut = false;
@@ -146,7 +148,7 @@ namespace DUTPS.API.Services
                     .Skip((checkIns.Paging.Page - 1) * checkIns.Paging.Limit)
                     .Take(checkIns.Paging.Limit)
                     .Select(x => new CheckInDto {
-                        DateOfCheckIn = x.DateOfCheckIn,
+                        DateOfCheckIn = x.DateOfCheckIn.AddHours(-7),
                         VehicalId = x.VehicalId,
                         VehicalLicensePlate = x.Vehical.LicensePlate,
                         VehicalDescription = x.Vehical.Description,
@@ -184,7 +186,7 @@ namespace DUTPS.API.Services
                         VehicalId = x.VehicalId,
                         VehicalLicensePlate = x.Vehical.LicensePlate,
                         VehicalDescription = x.Vehical.Description,
-                        DateOfCheckIn = x.DateOfCheckIn,
+                        DateOfCheckIn = x.DateOfCheckIn.AddHours(-7),
                         IsCheckOut = x.IsCheckOut
                     })
                     .FirstOrDefaultAsync(x => x.Id == checkInId);
@@ -224,10 +226,17 @@ namespace DUTPS.API.Services
                 {
                     condition.CheckInEndDate = GetValidDatetime(condition.CheckInEndDate.Value);
                 }
-
+                long? customerId = null;
+                if (!string.IsNullOrEmpty(condition.CustomerUsername))
+                {
+                    var customer = await _context.Users
+                        .FirstOrDefaultAsync(x => x.Username == condition.CustomerUsername);
+                    customerId = customer.Id;
+                }
                 var query = _context.CheckOuts
                     .Where(x => x.CheckIn.IsCheckOut)
-                    .Where(x => 
+                    .Where(x =>
+                        (!customerId.HasValue || x.CheckIn.CustomerId == customerId) &&
                         (String.IsNullOrEmpty(condition.Query) || 
                             x.CheckIn.Vehical.LicensePlate.ToLower().Contains(condition.Query.ToLower())||
                             x.CheckIn.Customer.Information.Name.ToLower().Contains(condition.Query.ToLower()))  &&
@@ -240,8 +249,8 @@ namespace DUTPS.API.Services
                     .Skip((checkIns.Paging.Page - 1) * checkIns.Paging.Limit)
                     .Take(checkIns.Paging.Limit)
                     .Select(x => new CheckInHistoryDto {
-                        DateOfCheckIn = x.CheckIn.DateOfCheckIn,
-                        DateOfCheckOut = x.DateOfCheckOut,
+                        DateOfCheckIn = x.CheckIn.DateOfCheckIn.AddHours(-7),
+                        DateOfCheckOut = x.DateOfCheckOut.AddHours(-7),
                         VehicalId = x.CheckIn.VehicalId,
                         VehicalLicensePlate = x.CheckIn.Vehical.LicensePlate,
                         VehicalDescription = x.CheckIn.Vehical.Description,
@@ -287,7 +296,7 @@ namespace DUTPS.API.Services
                         VehicalId = x.VehicalId,
                         VehicalLicensePlate = x.Vehical.LicensePlate,
                         VehicalDescription = x.Vehical.Description,
-                        DateOfCheckIn = x.DateOfCheckIn,
+                        DateOfCheckIn = x.DateOfCheckIn.AddHours(-7),
                         IsCheckOut = x.IsCheckOut
                     })
                     .FirstOrDefaultAsync(x => x.CustomerId == currentUser.Id && !x.IsCheckOut);

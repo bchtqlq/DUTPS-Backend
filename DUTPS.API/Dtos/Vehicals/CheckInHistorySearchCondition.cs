@@ -10,6 +10,8 @@ namespace DUTPS.API.Dtos.Vehicals
         
         public DateTime? CheckInEndDate { get; set; }
 
+        public string CustomerUsername { get; set; }
+
         public string Query { set; get; }
 
         [SwaggerExclude]

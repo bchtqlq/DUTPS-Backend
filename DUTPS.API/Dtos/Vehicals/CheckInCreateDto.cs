@@ -5,7 +5,7 @@ namespace DUTPS.API.Dtos.Vehicals
     public class CheckInCreateDto
     {
         [Required]
-        public long CustomerId { get; set; }
+        public string CustomerUsername { get; set; }
         
         [Required]
         public long VehicalId { get; set; }

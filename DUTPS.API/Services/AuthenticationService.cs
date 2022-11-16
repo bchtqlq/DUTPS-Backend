@@ -153,6 +153,7 @@ namespace DUTPS.API.Services
         {
             username = username.ToLower();
             return await _context.Users.Select(x => new ProfileDto {
+                Id = x.Id,
                 Username = x.Username,
                 Email = x.Email,
                 Role = x.Role,
