@@ -100,6 +100,7 @@ services.AddTransient<IAuthenticationService, AuthenticationService>();
 services.AddTransient<ICommonService, CommonService>();
 services.AddTransient<IVehicalService, VehicalService>();
 services.AddTransient<ICheckInService, CheckInService>();
+services.AddTransient<IUserService, UserService>();
 
 services.AddCors(o =>
                 o.AddPolicy("CorsPolicy", builder =>
@@ -112,9 +113,9 @@ var app = builder.Build();
 
 using (var scope = app.Services.CreateScope())
 {
-    var context = scope.ServiceProvider.GetService<DataContext>();
-    Seed.SeedUsers(context);
-    Seed.SeedFaculties(context);
+  var context = scope.ServiceProvider.GetService<DataContext>();
+  Seed.SeedUsers(context);
+  Seed.SeedFaculties(context);
 }
 AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
