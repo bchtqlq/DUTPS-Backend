@@ -9,6 +9,8 @@ namespace DUTPS.API.Services
   public interface IUserService
   {
     Task<List<ProfileDto>> GetUsers();
+    Task<ProfileDto> GetUserById(int id);
+
   }
   public class UserService : IUserService
   {
@@ -41,6 +43,30 @@ namespace DUTPS.API.Services
           Description = y.Description
         }).ToList()
       }).ToListAsync();
+    }
+
+    public async Task<ProfileDto> GetUserById(int id)
+    {
+      return await _context.Users.Select(x => new ProfileDto
+      {
+        Id = x.Information.UserId,
+        Username = x.Username,
+        Email = x.Email,
+        Role = x.Role,
+        Name = x.Information.Name,
+        Gender = x.Information.Gender,
+        Birthday = x.Information.Birthday,
+        PhoneNumber = x.Information.PhoneNumber,
+        Class = x.Information.Class,
+        FacultyId = x.Information.FacultyId,
+        FalcultyName = x.Information.Faculty.Name,
+        Vehicals = x.Vehicals.Select(y => new VehicalDto
+        {
+          Id = y.Id,
+          LicensePlate = y.LicensePlate,
+          Description = y.Description
+        }).ToList()
+      }).FirstOrDefaultAsync(x => x.Id == id);
     }
   }
 }
