@@ -221,5 +221,92 @@ namespace DUTPS.API.Controllers
         return StatusCode(500, new { Error = e.Message });
       }
     }
+
+    /// <summary>
+    /// update profile of user
+    /// <para>Created at: 2022-11-28</para>
+    /// <para>Created by: CoNt</para>
+    /// </summary>
+    /// <param name="user">new data of user</param>
+    /// <returns>result after update</returns>
+    /// <remarks>
+    /// Mean of response.Code
+    /// 
+    ///     200 - Success
+    ///     201 - Error validate input data
+    ///     202 - Have error in code
+    ///     403 - Not allow access this function
+    ///     500 - Server error
+    ///
+    /// </remarks>
+    /// <response code="200">
+    /// Success
+    /// 
+    ///     {
+    ///         "Code": 200,
+    ///         "MsgNo": "",
+    ///         "ListError": null,
+    ///         "Data": {}
+    ///     }
+    ///     
+    /// Validate Error
+    /// 
+    ///     {
+    ///         "Code": 201
+    ///         "MsgNo": "",
+    ///         "ListError": {
+    ///             "Username": "E001",
+    ///             "Email": "E005"
+    ///         },
+    ///         "Data": null
+    ///     }
+    ///     
+    /// Have error in code
+    /// 
+    ///     {
+    ///         "Code": 202
+    ///         "MsgNo": "E014",
+    ///         "ListError": null,
+    ///         "Data": null
+    ///     }
+    ///     
+    /// Exception
+    /// 
+    ///     {
+    ///         "Code": 500,
+    ///         "MsgNo": "E500",
+    ///         "ListError": null,
+    ///         "Data": {
+    ///             "Error": "Message"
+    ///         }
+    ///     }
+    ///     
+    /// </response>
+    /// <response code="200">result after update</response>
+    /// <response code="401">not login yet</response>
+    /// <response code="500">have exception</response>
+    [HttpPut("{id}")]
+    // [Authorize]
+    [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ProfileDto profile)
+    {
+      try
+      {
+        ResponseInfo response = new ResponseInfo();
+        if (ModelState.IsValid)
+        {
+          response = await _userService.UpdateUser(id, profile);
+        }
+        else
+        {
+          response.Code = CodeResponse.NOT_VALIDATE;
+        }
+        return Ok(response);
+      }
+      catch (Exception e)
+      {
+        return StatusCode(500, new { Error = e.Message });
+      }
+    }
   }
 }

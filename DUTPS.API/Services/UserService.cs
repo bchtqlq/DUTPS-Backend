@@ -18,7 +18,7 @@ namespace DUTPS.API.Services
     Task<List<ProfileDto>> GetUsers();
     Task<ProfileDto> GetUserById(int id);
     Task<ResponseInfo> CreateUser(ProfileDto profile);
-
+    Task<ResponseInfo> UpdateUser(int id, ProfileDto profile);
   }
   public class UserService : IUserService
   {
@@ -132,6 +132,50 @@ namespace DUTPS.API.Services
         await DataContext.RollbackAsync(transaction);
         throw;
       }
+    }
+
+    public async Task<ResponseInfo> UpdateUser(int id, ProfileDto profile)
+    {
+      IDbContextTransaction transaction = null;
+      try
+      {
+        var responeInfo = new ResponseInfo();
+
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+        var userInfo = await _context.UserInfos.FirstOrDefaultAsync(x => x.UserId == id);
+        if (user == null || userInfo == null)
+        {
+          responeInfo.Code = CodeResponse.NOT_FOUND;
+          responeInfo.Message = "Not found User";
+          return responeInfo;
+        }
+
+        user.Username = profile.Username;
+        user.Email = profile.Email;
+        user.Status = profile.Status;
+        user.Role = profile.Role;
+
+        userInfo.UserId = user.Id;
+        userInfo.Name = profile.Name;
+        userInfo.Gender = profile.Gender;
+        userInfo.Birthday = profile.Birthday;
+        userInfo.PhoneNumber = profile.PhoneNumber;
+        userInfo.Class = profile.Class;
+        userInfo.FacultyId = profile.FacultyId;
+
+        transaction = await _context.Database.BeginTransactionAsync();
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        responeInfo.Message = "Update User Success";
+        responeInfo.Data.Add("User", user.Id);
+        return responeInfo;
+      }
+      catch (Exception)
+      {
+        await DataContext.RollbackAsync(transaction);
+        throw;
+      }
+
     }
   }
 }
