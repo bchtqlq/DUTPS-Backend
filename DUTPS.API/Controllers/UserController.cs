@@ -308,5 +308,69 @@ namespace DUTPS.API.Controllers
         return StatusCode(500, new { Error = e.Message });
       }
     }
+
+    /// <summary>
+    /// Delete a User
+    /// <para>Created at: 2022-11-28</para>
+    /// <para>Created by: CoNt</para>
+    /// </summary>
+    /// <param name="id">id of User need delete</param>
+    /// <returns>data after delete User</returns>
+    /// <remarks>
+    /// Mean of response.Code
+    /// 
+    ///     200 - Success
+    ///     403 - Not allow access this function
+    ///     500 - Server error
+    ///
+    /// </remarks>
+    /// <response code="200">
+    /// Success
+    /// 
+    ///     {
+    ///         "Code": 200,
+    ///         "MsgNo": "",
+    ///         "ListError": null,
+    ///         "Data": {}
+    ///     }
+    ///     
+    /// Not have permission
+    /// 
+    ///     {
+    ///         "Code": 403
+    ///         "MsgNo": "E403",
+    ///         "ListError": null,
+    ///         "Data": null
+    ///     }
+    ///     
+    /// Exception
+    /// 
+    ///     {
+    ///         "Code": 500,
+    ///         "MsgNo": "E500",
+    ///         "ListError": null,
+    ///         "Data": {
+    ///             "Error": "Message"
+    ///         }
+    ///     }
+    ///     
+    /// </response>
+    /// <response code="401">Not login yet</response>
+    /// <response code="403">Not have permission</response>
+    /// <response code="500">Have exception</response>
+    [HttpDelete("{id}")]
+    [Authorize]
+    [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
+    public async Task<IActionResult> Delete([FromRoute] int id)
+    {
+      try
+      {
+        return Ok(await _userService.DeleteUser(id));
+      }
+      catch (Exception e)
+      {
+        return StatusCode(500, new { Error = e.Message });
+      }
+    }
   }
 }

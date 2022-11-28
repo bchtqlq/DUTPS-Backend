@@ -19,6 +19,7 @@ namespace DUTPS.API.Services
     Task<ProfileDto> GetUserById(int id);
     Task<ResponseInfo> CreateUser(ProfileDto profile);
     Task<ResponseInfo> UpdateUser(int id, ProfileDto profile);
+    Task<ResponseInfo> DeleteUser(int id);
   }
   public class UserService : IUserService
   {
@@ -175,7 +176,40 @@ namespace DUTPS.API.Services
         await DataContext.RollbackAsync(transaction);
         throw;
       }
+    }
 
+    public async Task<ResponseInfo> DeleteUser(int id)
+    {
+      IDbContextTransaction transaction = null;
+      try
+      {
+        var responeInfo = new ResponseInfo();
+
+        var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
+        var userInfo = await _context.UserInfos.FirstOrDefaultAsync(x => x.UserId == id);
+
+        if (user == null || userInfo == null)
+        {
+          responeInfo.Code = CodeResponse.NOT_FOUND;
+          responeInfo.Message = "Not found user";
+          return responeInfo;
+        }
+
+        _context.UserInfos.Remove(userInfo);
+        _context.Users.Remove(user);
+
+        transaction = await _context.Database.BeginTransactionAsync();
+        await _context.SaveChangesAsync();
+        await transaction.CommitAsync();
+        responeInfo.Message = "Delete User Success";
+        responeInfo.Data.Add("User", user.Id);
+        return responeInfo;
+      }
+      catch (Exception)
+      {
+        await DataContext.RollbackAsync(transaction);
+        throw;
+      }
     }
   }
 }
