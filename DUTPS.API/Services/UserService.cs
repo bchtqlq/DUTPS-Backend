@@ -1,8 +1,15 @@
+using System.Security.Cryptography;
+using System.Text;
 using DUTPS.API.Dtos.Commons;
 using DUTPS.API.Dtos.Profile;
 using DUTPS.API.Dtos.Vehicals;
+using DUTPS.Commons.CodeMaster;
+using DUTPS.Commons.Enums;
+using DUTPS.Commons.Schemas;
 using DUTPS.Databases;
+using DUTPS.Databases.Schemas.Authentication;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DUTPS.API.Services
 {
@@ -10,6 +17,7 @@ namespace DUTPS.API.Services
   {
     Task<List<ProfileDto>> GetUsers();
     Task<ProfileDto> GetUserById(int id);
+    Task<ResponseInfo> CreateUser(ProfileDto profile);
 
   }
   public class UserService : IUserService
@@ -67,6 +75,63 @@ namespace DUTPS.API.Services
           Description = y.Description
         }).ToList()
       }).FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<ResponseInfo> CreateUser(ProfileDto profile)
+    {
+      IDbContextTransaction transaction = null;
+      try
+      {
+        var responeInfo = new ResponseInfo();
+
+        profile.Username = profile.Username.ToLower();
+
+        if (await _context.Users.AnyAsync(u => u.Username == profile.Username))
+        {
+          responeInfo.Code = CodeResponse.HAVE_ERROR;
+          responeInfo.Message = "Username is existed";
+          return responeInfo;
+        }
+
+        using var hmac = new HMACSHA512();
+
+        var user = new User
+        {
+          Username = profile.Username,
+          Email = profile.Email,
+          PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(profile.Password)),
+          PasswordSalt = hmac.Key,
+          Status = AccountState.Normal.CODE,
+          Role = Role.Customer.CODE
+        };
+
+        await _context.Users.AddAsync(user);
+        transaction = await _context.Database.BeginTransactionAsync();
+        await _context.SaveChangesAsync();
+
+        await _context.UserInfos.AddAsync(new UserInfo
+        {
+          UserId = user.Id,
+          Name = profile.Name,
+          Gender = profile.Gender,
+          Birthday = profile.Birthday,
+          PhoneNumber = profile.PhoneNumber,
+          Class = profile.Class,
+          FacultyId = profile.FacultyId,
+
+        });
+        await _context.SaveChangesAsync();
+
+        await transaction.CommitAsync();
+
+        responeInfo.Code = CodeResponse.OK;
+        return responeInfo;
+      }
+      catch (Exception)
+      {
+        await DataContext.RollbackAsync(transaction);
+        throw;
+      }
     }
   }
 }
