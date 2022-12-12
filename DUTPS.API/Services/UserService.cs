@@ -1,7 +1,7 @@
 using System.Security.Cryptography;
 using System.Text;
-using DUTPS.API.Dtos.Commons;
 using DUTPS.API.Dtos.Profile;
+using DUTPS.API.Dtos.Users;
 using DUTPS.API.Dtos.Vehicals;
 using DUTPS.Commons.CodeMaster;
 using DUTPS.Commons.Enums;
@@ -13,11 +13,11 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DUTPS.API.Services
 {
-  public interface IUserService
+    public interface IUserService
   {
     Task<List<ProfileDto>> GetUsers();
     Task<ProfileDto> GetUserById(int id);
-    Task<ResponseInfo> CreateUser(ProfileDto profile);
+    Task<ResponseInfo> CreateUser(UserCreateUpdateDto profile);
     Task<ResponseInfo> UpdateUser(int id, ProfileDto profile);
     Task<ResponseInfo> DeleteUser(int id);
   }
@@ -78,16 +78,28 @@ namespace DUTPS.API.Services
       }).FirstOrDefaultAsync(x => x.Id == id);
     }
 
-    public async Task<ResponseInfo> CreateUser(ProfileDto profile)
+    public async Task<ResponseInfo> CreateUser(UserCreateUpdateDto data)
     {
       IDbContextTransaction transaction = null;
       try
       {
         var responeInfo = new ResponseInfo();
 
-        profile.Username = profile.Username.ToLower();
+        data.Username = data.Username.ToLower();
 
-        if (await _context.Users.AnyAsync(u => u.Username == profile.Username))
+        if (!string.IsNullOrEmpty(data.Password) && data.Password != data.ConfirmPassword)
+        {
+            responeInfo.Code = CodeResponse.NOT_VALIDATE;
+            responeInfo.Message = "Password does not match";
+            return responeInfo;
+        }
+
+        if (string.IsNullOrEmpty(data.Password))
+        {
+          data.Password = data.Username;
+        }
+
+        if (await _context.Users.AnyAsync(u => u.Username == data.Username))
         {
           responeInfo.Code = CodeResponse.HAVE_ERROR;
           responeInfo.Message = "Username is existed";
@@ -98,31 +110,26 @@ namespace DUTPS.API.Services
 
         var user = new User
         {
-          Username = profile.Username,
-          Email = profile.Email,
-          PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(profile.Password)),
+          Username = data.Username,
+          Email = data.Email,
+          PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data.Password)),
           PasswordSalt = hmac.Key,
           Status = AccountState.Normal.CODE,
-          Role = Role.Customer.CODE
+          Role = data.Role,
+          Information = new UserInfo()
+          {
+              Name = data.Name,
+              Gender = data.Gender,
+              Birthday = data.Birthday,
+              PhoneNumber = data.PhoneNumber,
+              Class = data.Class,
+              FacultyId = data.FacultyId,
+          }
         };
 
         await _context.Users.AddAsync(user);
         transaction = await _context.Database.BeginTransactionAsync();
         await _context.SaveChangesAsync();
-
-        await _context.UserInfos.AddAsync(new UserInfo
-        {
-          UserId = user.Id,
-          Name = profile.Name,
-          Gender = profile.Gender,
-          Birthday = profile.Birthday,
-          PhoneNumber = profile.PhoneNumber,
-          Class = profile.Class,
-          FacultyId = profile.FacultyId,
-
-        });
-        await _context.SaveChangesAsync();
-
         await transaction.CommitAsync();
 
         responeInfo.Code = CodeResponse.OK;

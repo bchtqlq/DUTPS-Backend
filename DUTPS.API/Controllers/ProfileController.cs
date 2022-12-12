@@ -154,6 +154,7 @@ namespace DUTPS.API.Controllers
         /// <response code="404">Not found profile</response>
         /// <response code="500">Have exception</response>
         [HttpPost]
+        [Authorize]
         [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Update([FromBody] UpdateProfileDto profile)
         {
@@ -243,6 +244,7 @@ namespace DUTPS.API.Controllers
         /// <response code="404">Not found profile</response>
         /// <response code="500">Have exception</response>
         [HttpPost("ChangePassword")]
+        [Authorize]
         [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordDto changePasswordDto)
         {

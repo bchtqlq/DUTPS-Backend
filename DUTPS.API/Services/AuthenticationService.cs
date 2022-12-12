@@ -70,7 +70,13 @@ namespace DUTPS.API.Services
                 }
             }
 
-            var token = _tokenService.CreateToken(currentUser.Username);
+            if (currentUser.Status == Commons.CodeMaster.AccountState.Lock.CODE)
+            {
+                responeInfo.Code = CodeResponse.NOT_ACCESS;
+                responeInfo.Message = "Account Is Lock";
+            }
+
+            var token = _tokenService.CreateToken(currentUser.Username, currentUser.Role);
             
             responeInfo.Code = CodeResponse.OK;
             responeInfo.Data.Add("accessToken", token);
@@ -138,7 +144,7 @@ namespace DUTPS.API.Services
                 await transaction.CommitAsync();
 
                 responeInfo.Code = CodeResponse.OK;
-                responeInfo.Data.Add("accessToken", _tokenService.CreateToken(user.Username));
+                responeInfo.Data.Add("accessToken", _tokenService.CreateToken(user.Username, user.Role));
                 responeInfo.Data.Add("username", user.Username);
                 return responeInfo;
             }
