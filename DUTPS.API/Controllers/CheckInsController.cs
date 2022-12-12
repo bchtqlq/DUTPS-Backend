@@ -1,6 +1,7 @@
 using System.Net;
 using System.Security.Claims;
 using DUTPS.API.Dtos.Vehicals;
+using DUTPS.API.Filters;
 using DUTPS.API.Services;
 using DUTPS.Commons;
 using DUTPS.Commons.Enums;
@@ -61,7 +62,7 @@ namespace DUTPS.API.Controllers
         }
 
         [HttpPost("CreateCheckIn")]
-        [Authorize]
+        [AuthGroup(new int[] {10, 20})]
         [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCheckIn([FromBody] CheckInCreateDto checkIn)
         {
@@ -79,6 +80,7 @@ namespace DUTPS.API.Controllers
                     response.Message = "Invalid Input";
                 }
                 return Ok(response);
+                
             }
             catch (Exception e)
             {
@@ -87,7 +89,7 @@ namespace DUTPS.API.Controllers
         }
 
         [HttpPost("CreateCheckOut")]
-        [Authorize]
+        [AuthGroup(new int[] {10, 20})]
         [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> CreateCheckOut([FromBody] CheckOutCreateDto checkOut)
         {
@@ -113,7 +115,7 @@ namespace DUTPS.API.Controllers
         }
 
         [HttpGet("History")]
-        [Authorize]
+        [AuthGroup(10)]
         [ProducesResponseType(typeof(PaginatedList<CheckInHistoryDto>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> Get([FromQuery] CheckInHistorySearchCondition condition)
         {
@@ -133,7 +135,7 @@ namespace DUTPS.API.Controllers
         }
 
         [HttpGet("AvailableCheckIns")]
-        [Authorize]
+        [AuthGroup(new int[] { 10, 20 })]
         [ProducesResponseType(typeof(PaginatedList<CheckInDto>), (int)HttpStatusCode.OK)]
         public async Task<IActionResult> GetAvailableCheckIn([FromQuery] AvailableCheckInSearchCondition condition)
         {

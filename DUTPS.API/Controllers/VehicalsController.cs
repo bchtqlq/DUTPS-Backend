@@ -251,7 +251,7 @@ namespace DUTPS.API.Controllers
         /// <summary>
         /// update detail of a vehical
         /// <para>Created at: 2022-15-11</para>
-        /// <para>Created by: QuyPN</para>
+        /// <para>Created by: QuangTN</para>
         /// </summary>
         /// <param name="vehical">new data of vehical</param>
         /// <returns>result after update</returns>

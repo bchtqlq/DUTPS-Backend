@@ -1,10 +1,8 @@
 using System.Net;
-using System.Security.Claims;
 using DUTPS.API.Dtos.Authentication;
 using DUTPS.API.Services;
 using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DUTPS.API.Controllers

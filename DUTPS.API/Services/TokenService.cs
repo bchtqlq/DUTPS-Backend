@@ -8,7 +8,7 @@ namespace DUTPS.API.Services
 {
     public interface ITokenService
     {
-        string CreateToken(string username);
+        string CreateToken(string username, int role);
     }
     public class TokenService : ITokenService
     {
@@ -21,12 +21,13 @@ namespace DUTPS.API.Services
             _configuration = configuration;
         }
 
-        public string CreateToken(string username)
+        public string CreateToken(string username, int role)
         {
             var claims = new List<Claim>()
             {
                 new Claim(JwtRegisteredClaimNames.NameId, username),
-                new Claim(JwtRegisteredClaimNames.Email, $"{username}@dutps.app")
+                new Claim(JwtRegisteredClaimNames.Email, $"{username}@dutps.app"),
+                new Claim("Role", role.ToString())
             };
 
             var symmetricKey = new SymmetricSecurityKey(
