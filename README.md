@@ -11,3 +11,5 @@
 - Super user
   + Username: admin
   + Password: Pa$$w0rd
+- Link Video demo:
+https://drive.google.com/drive/folders/1HquSLd_xL3HNTpYqaBb71FTwswcGT8Rn?usp=sharing
