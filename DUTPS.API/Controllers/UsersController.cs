@@ -289,7 +289,7 @@ namespace DUTPS.API.Controllers
     [HttpPut("{id}")]
     [AuthGroup(10)]
     [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] ProfileDto profile)
+    public async Task<IActionResult> Update([FromRoute] int id, [FromBody] UserCreateUpdateDto profile)
     {
       try
       {
