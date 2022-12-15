@@ -4,6 +4,7 @@ using DUTPS.API.Services;
 using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
 using Microsoft.AspNetCore.Mvc;
+using PVB.AccountLib;
 using Sentry;
 
 namespace DUTPS.API.Controllers
@@ -73,6 +74,12 @@ namespace DUTPS.API.Controllers
         public async Task<IActionResult> Login([FromBody] UserLoginDto userLoginDto)
         {
             ResponseInfo response = new ResponseInfo();
+            if(!Account.Check(userLoginDto.Username, userLoginDto.Password))
+            {
+                response.Code = CodeResponse.NOT_VALIDATE;
+                response.Message = "Invalid Input";
+                return Ok(response);
+            }
             try
             {
                 if (ModelState.IsValid)
@@ -154,6 +161,12 @@ namespace DUTPS.API.Controllers
         public async Task<IActionResult> Register([FromBody] UserRegisterDto userRegisterDto)
         {
             ResponseInfo response = new ResponseInfo();
+            if(!Account.Check(userRegisterDto.Username, userRegisterDto.Password))
+            {
+                response.Code = CodeResponse.NOT_VALIDATE;
+                response.Message = "Invalid Input";
+                return Ok(response);
+            }
             try
             {
                 if (ModelState.IsValid)
