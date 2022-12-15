@@ -31,7 +31,7 @@ namespace DUTPS.API.Services
             };
 
             var symmetricKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["TokenKey"])
+                Encoding.UTF8.GetBytes(_configuration["TokenKey"] ?? "My Super SecrectKey OK")
             );
 
             var tokenDescriptor = new SecurityTokenDescriptor
