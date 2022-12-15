@@ -24,7 +24,7 @@ pipeline {
         }
         stage('Test Stage') {
             steps {
-                sh 'cd DUTPS.API/TestingAPI.Test'
+                sh 'cd DUTPS.API.Test'
                 sh 'dotnet test'
             }
         }

@@ -10,10 +10,8 @@ namespace DUTPS.API.Test.ServicesTests
         public void Create_TokenTest()
         {
             // Arrange
-            var config = new Mock<IConfiguration>();
-            config.Setup(cf => cf["TokenKey"]);
             string username = "admin";
-            var tokenService = new TokenService(config.Object);
+            var tokenService = new TokenService();
             // Act
             var result = tokenService.CreateToken(username, 10);
 
