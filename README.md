@@ -16,3 +16,5 @@
   + Username: admin
   + Password: Pa$$w0rd
 
+v1.0.0
+
