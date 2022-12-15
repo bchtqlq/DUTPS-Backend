@@ -232,5 +232,77 @@ namespace DUTPS.API.Test.ServicesTests
             result.Code.ShouldBe(CodeResponse.NOT_FOUND);
             result.Message.ShouldContain("Invalid username or password");
         }
+
+        [Fact]
+        public async Task Register_UsernameExisted()
+        {
+            //assert   
+            var authService = new AuthenticationService(
+                _dbContext,
+                _logger,
+                _tokenService);
+            var userRegisterDto = new UserRegisterDto()
+            {
+                Username = "admin",
+                Password = "pa$$w0rd",
+                ConfirmPassword = "pa$$w0rd"
+            };
+
+            // Act
+            var result = await authService.Register(userRegisterDto);
+
+            // Assert
+            Assert.NotNull(result);
+            result.Code.ShouldBe(CodeResponse.HAVE_ERROR);
+        }
+
+        [Fact]
+        public async Task Register_PasswordDoesNotMatch()
+        {
+            //assert   
+            var authService = new AuthenticationService(
+                _dbContext,
+                _logger,
+                _tokenService);
+            var userRegisterDto = new UserRegisterDto()
+            {
+                Username = "admin12",
+                Password = "pa$$w0rd1",
+                ConfirmPassword = "pa$$w0rd"
+            };
+
+            // Act
+            var result = await authService.Register(userRegisterDto);
+
+            // Assert
+            Assert.NotNull(result);
+            result.Code.ShouldBe(CodeResponse.NOT_VALIDATE);
+        }
+
+        [Fact]
+        public async Task Register_Success()
+        {
+            //assert   
+            var authService = new AuthenticationService(
+                _dbContext,
+                _logger,
+                _tokenService);
+            var userRegisterDto = new UserRegisterDto()
+            {
+                Username = "register",
+                Password = "pa$$w0rd",
+                ConfirmPassword = "pa$$w0rd",
+                Email = "example@gmail.com"
+            };
+
+            // Act
+            var result = await authService.Register(userRegisterDto);
+
+            // Assert
+            Assert.NotNull(result);
+            result.Code.ShouldBe(CodeResponse.OK);
+        }
+
+
     }
 }
