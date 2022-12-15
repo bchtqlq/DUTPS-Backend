@@ -70,12 +70,6 @@ namespace DUTPS.API.Services
                 }
             }
 
-            if (currentUser.Status == Commons.CodeMaster.AccountState.Lock.CODE)
-            {
-                responeInfo.Code = CodeResponse.NOT_ACCESS;
-                responeInfo.Message = "Account Is Lock";
-            }
-
             var token = _tokenService.CreateToken(currentUser.Username, currentUser.Role);
             
             responeInfo.Code = CodeResponse.OK;
