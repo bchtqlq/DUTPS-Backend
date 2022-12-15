@@ -5,8 +5,8 @@ pipeline {
             steps {
                 script {
                     try {
-                        sh "docker rm  pbl6_dotnet_parking -f"
-                        sh "docker rmi pbl6_dotnet_api -f"
+                        sh "docker rm  dotnet_parking -f"
+                        sh "docker rmi dotnet_parking_api -f"
                         sh 'docker rm /$(docker ps --filter status=exited -q)'
                     }
                     catch (err) {
@@ -30,7 +30,7 @@ pipeline {
         }
         stage("Release Stage and Deploy Stage") {
             steps {
-                sh 'sudo docker-compose up --build -d'
+                sh 'docker-compose up --build -d'
             }
         }
     }
