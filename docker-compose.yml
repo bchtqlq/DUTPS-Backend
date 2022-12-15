@@ -1,0 +1,15 @@
+version: '3.4'
+services:
+  be:
+    container_name: dotnet_parking
+    image: dotnet_parking_api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    build:
+      context: .
+      target: development
+    ports: 
+      - 5000:5000
+    volumes:
+      - .:/src
+  
