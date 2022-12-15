@@ -99,6 +99,17 @@ namespace DUTPS.API.Services
                     return responeInfo;
                 }
 
+                if (await _context.CheckIns
+                    .AnyAsync(x =>
+                        x.CustomerId == customer.Id &&
+                        x.VehicalId == checkInCreateDto.VehicalId &&
+                        !x.IsCheckOut))
+                {
+                    responeInfo.Code = CodeResponse.HAVE_ERROR;
+                    responeInfo.Message = "This vehical already check in";
+                    return responeInfo;
+                }
+
                 var checkIn = new CheckIn();
                  
                 checkIn.StaffId = currentUser.Id;
