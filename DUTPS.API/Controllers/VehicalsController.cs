@@ -6,6 +6,7 @@ using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Sentry;
 
 namespace DUTPS.API.Controllers
 {
@@ -85,6 +86,7 @@ namespace DUTPS.API.Controllers
             }
             catch (Exception e)
             {
+                SentrySdk.CaptureMessage("Server error: " + e.Message);
                 return StatusCode(500, new { Error = e.Message });
             }
         }
@@ -155,6 +157,7 @@ namespace DUTPS.API.Controllers
             }
             catch (Exception e)
             {
+                SentrySdk.CaptureMessage("Server error: " + e.Message);
                 return StatusCode(500, new { Error = e.Message });
             }
         }
@@ -239,11 +242,13 @@ namespace DUTPS.API.Controllers
                 {
                     response.Code = CodeResponse.NOT_VALIDATE;
                     response.Message = "Invalid Input";
+                    SentrySdk.CaptureMessage("Create data for Vehical is invalid");
                 }
                 return Ok(response);
             }
             catch (Exception e)
             {
+                SentrySdk.CaptureMessage("Server error: " + e.Message);
                 return StatusCode(500, new { Error = e.Message });
             }
         }
@@ -325,12 +330,14 @@ namespace DUTPS.API.Controllers
                 }
                 else
                 {
+                    SentrySdk.CaptureMessage("Update data for Vehical is invalid");
                     response.Code = CodeResponse.NOT_VALIDATE;
                 }
                 return Ok(response);
             }
             catch (Exception e)
             {
+                SentrySdk.CaptureMessage("Server error: " + e.Message);
                 return StatusCode(500, new { Error = e.Message });
             }
         }
@@ -395,6 +402,7 @@ namespace DUTPS.API.Controllers
             }
             catch (Exception e)
             {
+                SentrySdk.CaptureMessage("Server error: " + e.Message);
                 return StatusCode(500, new { Error = e.Message });
             }
         }
