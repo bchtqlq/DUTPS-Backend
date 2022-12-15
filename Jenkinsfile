@@ -24,13 +24,13 @@ pipeline {
         }
         stage('Test Stage') {
             steps {
-                sh 'cd DUTPS.API/TestingAPI.Test'
+                sh 'cd DUTPS.API.Test'
                 sh 'dotnet test'
             }
         }
         stage("Release Stage and Deploy Stage") {
             steps {
-                sh 'docker compose up --build -d'
+                sh 'sudo docker-compose up --build -d'
             }
         }
     }

@@ -12,7 +12,6 @@ namespace DUTPS.API.Test.ServicesTests
         public async Task GetFaculties_Test()
         {
             var dbContext = _serviceProvider.GetService<DataContext>();
-
             var commonService = new CommonService(dbContext);
             // Act
             var result = await commonService.GetFaculties();
