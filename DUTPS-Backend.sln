@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUTPS.Databases", "DUTPS.Da
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUTPS.Commons", "DUTPS.Commons\DUTPS.Commons.csproj", "{1BEDA6E2-5ABB-4319-AD1F-6FD0AC8CE500}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DUTPS.API.Test", "DUTPS.API.Test\DUTPS.API.Test.csproj", "{9031404E-A7F7-45A4-9363-7820141E6C9B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{1BEDA6E2-5ABB-4319-AD1F-6FD0AC8CE500}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1BEDA6E2-5ABB-4319-AD1F-6FD0AC8CE500}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1BEDA6E2-5ABB-4319-AD1F-6FD0AC8CE500}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9031404E-A7F7-45A4-9363-7820141E6C9B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9031404E-A7F7-45A4-9363-7820141E6C9B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9031404E-A7F7-45A4-9363-7820141E6C9B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9031404E-A7F7-45A4-9363-7820141E6C9B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
