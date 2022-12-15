@@ -1,3 +1,4 @@
+using DUTPS.API.Services;
 using DUTPS.Databases;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,6 +16,12 @@ namespace DUTPS.API.Test.ServicesTests
             (
                 "User ID=mdentaku;Password=tM2QaxQhnx7MGFci6LbxRdJf51EwBkd8;Server=tiny.db.elephantsql.com;Port=5432;Database=mdentaku;"
             ));
+            services.AddTransient<ITokenService, TokenService>();
+            services.AddTransient<IAuthenticationService, AuthenticationService>();
+            services.AddTransient<ICommonService, CommonService>();
+            services.AddTransient<IVehicalService, VehicalService>();
+            services.AddTransient<ICheckInService, CheckInService>();
+            services.AddTransient<IUserService, UserService>();
 
             _serviceProvider = services.BuildServiceProvider();
         }

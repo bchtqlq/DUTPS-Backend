@@ -12,13 +12,9 @@ namespace DUTPS.API.Services
     }
     public class TokenService : ITokenService
     {
-        private readonly IConfiguration _configuration;
-
         public TokenService(
-            IConfiguration configuration
             )
         {
-            _configuration = configuration;
         }
 
         public string CreateToken(string username, int role)
@@ -31,7 +27,7 @@ namespace DUTPS.API.Services
             };
 
             var symmetricKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_configuration["TokenKey"] ?? "My Super SecrectKey OK")
+                Encoding.UTF8.GetBytes("My Super SecrectKey OK")
             );
 
             var tokenDescriptor = new SecurityTokenDescriptor
