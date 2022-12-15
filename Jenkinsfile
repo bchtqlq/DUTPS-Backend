@@ -30,7 +30,7 @@ pipeline {
         }
         stage("Release Stage and Deploy Stage") {
             steps {
-                sh 'sudo docker-compose up --build -d'
+                sh 'docker-compose up --build -d'
             }
         }
     }
