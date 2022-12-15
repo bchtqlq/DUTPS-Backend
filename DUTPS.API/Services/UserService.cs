@@ -13,12 +13,12 @@ using Microsoft.EntityFrameworkCore.Storage;
 
 namespace DUTPS.API.Services
 {
-    public interface IUserService
+  public interface IUserService
   {
     Task<List<ProfileDto>> GetUsers();
     Task<ProfileDto> GetUserById(int id);
-    Task<ResponseInfo> CreateUser(UserCreateUpdateDto profile);
-    Task<ResponseInfo> UpdateUser(int id, ProfileDto profile);
+    Task<ResponseInfo> CreateUser(UserCreateUpdateDto data);
+    Task<ResponseInfo> UpdateUser(int id, UserCreateUpdateDto data);
     Task<ResponseInfo> DeleteUser(int id);
   }
   public class UserService : IUserService
@@ -89,9 +89,9 @@ namespace DUTPS.API.Services
 
         if (!string.IsNullOrEmpty(data.Password) && data.Password != data.ConfirmPassword)
         {
-            responeInfo.Code = CodeResponse.NOT_VALIDATE;
-            responeInfo.Message = "Password does not match";
-            return responeInfo;
+          responeInfo.Code = CodeResponse.NOT_VALIDATE;
+          responeInfo.Message = "Password does not match";
+          return responeInfo;
         }
 
         if (string.IsNullOrEmpty(data.Password))
@@ -118,12 +118,12 @@ namespace DUTPS.API.Services
           Role = data.Role,
           Information = new UserInfo()
           {
-              Name = data.Name,
-              Gender = data.Gender,
-              Birthday = data.Birthday,
-              PhoneNumber = data.PhoneNumber,
-              Class = data.Class,
-              FacultyId = data.FacultyId,
+            Name = data.Name,
+            Gender = data.Gender,
+            Birthday = data.Birthday,
+            PhoneNumber = data.PhoneNumber,
+            Class = data.Class,
+            FacultyId = data.FacultyId,
           }
         };
 
@@ -142,12 +142,14 @@ namespace DUTPS.API.Services
       }
     }
 
-    public async Task<ResponseInfo> UpdateUser(int id, ProfileDto profile)
+    public async Task<ResponseInfo> UpdateUser(int id, UserCreateUpdateDto data)
     {
       IDbContextTransaction transaction = null;
       try
       {
         var responeInfo = new ResponseInfo();
+
+        data.Username = data.Username.ToLower();
 
         var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == id);
         var userInfo = await _context.UserInfos.FirstOrDefaultAsync(x => x.UserId == id);
@@ -158,18 +160,40 @@ namespace DUTPS.API.Services
           return responeInfo;
         }
 
-        user.Username = profile.Username;
-        user.Email = profile.Email;
-        user.Status = profile.Status;
-        user.Role = profile.Role;
+        if (!string.IsNullOrEmpty(data.Password) && data.Password != data.ConfirmPassword)
+        {
+          responeInfo.Code = CodeResponse.NOT_VALIDATE;
+          responeInfo.Message = "Password does not match";
+          return responeInfo;
+        }
+
+        if (string.IsNullOrEmpty(data.Password))
+        {
+          data.Password = data.Username;
+        }
+
+        if (await _context.Users.AnyAsync(u => u.Username == data.Username && u.Id != id))
+        {
+          responeInfo.Code = CodeResponse.HAVE_ERROR;
+          responeInfo.Message = "Username is existed";
+          return responeInfo;
+        }
+
+        using var hmac = new HMACSHA512();
+
+        user.Username = data.Username;
+        user.Email = data.Email;
+        user.Role = data.Role;
+        user.PasswordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data.Password));
+        user.PasswordSalt = hmac.Key;
 
         userInfo.UserId = user.Id;
-        userInfo.Name = profile.Name;
-        userInfo.Gender = profile.Gender;
-        userInfo.Birthday = profile.Birthday;
-        userInfo.PhoneNumber = profile.PhoneNumber;
-        userInfo.Class = profile.Class;
-        userInfo.FacultyId = profile.FacultyId;
+        userInfo.Name = data.Name;
+        userInfo.Gender = data.Gender;
+        userInfo.Birthday = data.Birthday;
+        userInfo.PhoneNumber = data.PhoneNumber;
+        userInfo.Class = data.Class;
+        userInfo.FacultyId = data.FacultyId;
 
         transaction = await _context.Database.BeginTransactionAsync();
         await _context.SaveChangesAsync();
