@@ -1,5 +1,6 @@
 using System.Net;
 using DUTPS.API.Dtos.Profile;
+using DUTPS.API.Dtos.Users;
 using DUTPS.API.Services;
 using DUTPS.Commons.Enums;
 using DUTPS.Commons.Schemas;
@@ -197,7 +198,7 @@ namespace DUTPS.API.Controllers
     [HttpPost()]
     [Authorize]
     [ProducesResponseType(typeof(ResponseInfo), (int)HttpStatusCode.OK)]
-    public async Task<IActionResult> CreateUser([FromBody] ProfileDto profile)
+    public async Task<IActionResult> CreateUser([FromBody] UserCreateUpdateDto profile)
     {
       ResponseInfo response = new ResponseInfo();
       try
